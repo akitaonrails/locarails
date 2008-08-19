@@ -1,0 +1,117 @@
+#!/usr/bin/env ruby
+#
+#  Created on 2008-8-19.
+#  Copyright (c) 2008. All rights reserved.
+
+begin
+  require 'rubygems'
+rescue LoadError
+  # no rubygems to load, so we fail silently
+end
+
+require 'ostruct'
+require 'optparse'
+
+OptionParser.new do |opts|
+  opts.banner = "Uso: #{File.basename($0)} [caminho]"
+
+  opts.on("-h", "--help", "Mostra esta tela de ajuda") do
+    puts opts
+    exit 0
+  end
+
+  begin
+    opts.parse!(ARGV)
+  rescue OptionParser::ParseError => e
+    warn e.message
+    puts opts
+    exit 1
+  end
+end
+
+if ARGV.empty?
+  abort "Por favor, especifique o diretorio do seu projeto Rails, e.g. `#{File.basename($0)} .'"
+elsif !File.exists?(ARGV.first)
+  abort "`#{ARGV.first}' nao existe. Tente novamente."
+elsif !File.directory?(ARGV.first)
+  abort "`#{ARGV.first}' nao eh um diretorio. Tente novamente."
+elsif ARGV.length > 1
+  abort "Argumentos demais; por favor especifique somente o diretorio da aplicacao Rails.."
+end
+
+def get_input(message)
+  print "* #{message} > "
+  gets.strip
+end
+
+# configuracoes da sua hospedagem
+config   = OpenStruct.new
+mysqlcfg = OpenStruct.new
+
+# configuracoes locais da sua maquina
+config.bin_path   = File.dirname(File.expand_path(__FILE__))
+config.local_path = File.expand_path(ARGV.shift)
+config.app_name   = config.local_path.split('/').last
+
+if File.exists?(File.join(config.local_path, 'config/deploy.rb'))
+  abort "Voce ja tem capistrano configurado em config/deploy.rb. Configuracao abortada."
+end
+
+puts <<-STR
+==================================================
+Bem Vindos ao configurador de projetos da Locaweb
+Vamos configurar seu projeto Rails para melhor se
+Adequar nas nossas hospedagens Linux compartilhada
+Para tanto precisaremos de algumas informacoes:
+==================================================
+
+Garanta que a seguinte pasta contem sua aplicacao
+Rails: #{config.local_path}
+
+STR
+
+# configuracoes inseridas manualmente pelo usuario
+config.app_name = get_input( "O nome da sua aplicacao" ) if config.app_name.nil? || config.app_name.empty?
+config.dominio  = get_input "O dominio do seu site (ex. teste.tempsite.ws)"
+config.usuario  = get_input "Seu usuario de hospedagem"
+mysqlcfg.db     = get_input "O nome do seu banco mysql"
+mysqlcfg.user   = get_input "Seu usuario de mysql"
+mysqlcfg.pass   = get_input "Sua senha de mysql"
+mysqlcfg.host   = get_input "Seu servidor mysql (ex. mysqlxxx.locaweb.com.br)"
+
+# forca rodar capistrano
+unless File.exists?("#{config.local_path}/Capfile")
+  puts "- Executando Capistrano no seu projeto ..."
+  `capify .`
+end
+
+FileUtils.copy_file("#{config.bin_path}/../templates/locaweb_backup.rb", 
+  "#{config.local_path}/config/locaweb_backup.rb")
+  
+File.open("#{config.local_path}/config/deploy.rb", 'w+') do |out| 
+  buffer = File.open("#{config.bin_path}/../templates/deploy.rb", 'r') do | f | 
+    f.read.gsub('seu.usuario', config.usuario).
+      gsub('seu.dominio',      config.dominio).
+      gsub('sua.aplicacao',    config.app_name).
+      gsub('seu.projeto',      config.local_path)
+  end
+  out.puts buffer
+end
+
+File.open("#{config.local_path}/config/database.locaweb.yml", 'w+') do |out| 
+  buffer = File.open("#{config.bin_path}/../templates/database.locaweb.yml", 'r') do | f | 
+    f.read.gsub('mysql.database', mysqlcfg.db).
+      gsub('mysql.username', mysqlcfg.user).
+      gsub('mysql.password', mysqlcfg.pass).
+      gsub('mysql.hostname', mysqlcfg.host)
+  end
+  out.puts buffer
+end
+
+puts <<-STR
+
+# Parabéns, voce terminou de configurar sua aplicacao Rails!
+# Para configurar sua hospedagem execute 'cap deploy:setup'.
+# Para subir seu projeto execute 'cap deploy'
+[finalizado!]
+STR

@@ -1,0 +1,10 @@
+bin/locarails
+LICENSE
+Manifest
+README
+locarails-gem.gemspec
+lib/locarails.rb
+lib/locarails/version.rb
+templates/database.locaweb.yml
+templates/deploy.rb
+templates/locaweb_backup.rb
