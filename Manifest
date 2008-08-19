@@ -2,7 +2,7 @@ bin/locarails
 LICENSE
 Manifest
 README
-locarails-gem.gemspec
+locarails.gemspec
 lib/locarails.rb
 lib/locarails/version.rb
 templates/database.locaweb.yml
