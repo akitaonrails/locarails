@@ -1,0 +1,1 @@
+@ruby "C:/ruby/bin/locarails" %*
