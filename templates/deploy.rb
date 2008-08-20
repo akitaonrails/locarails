@@ -80,6 +80,7 @@ set :no_release, true
 set :scm, :none # nenhum repositorio
 set :deploy_via, :copy 
 set :copy_exclude, %w(.git/* .svn/* log/* tmp/*)
+set :keep_releases, 5
 
 ssh_options[:username] = user
 ssh_options[:paranoid] = false 
