@@ -1,6 +1,7 @@
+require 'lib/locarails/version.rb'
 Gem::Specification.new do |s|
   s.name = %q{locarails}
-  s.version = "1.0.0"
+  s.version = Locarails::VERSION::STRING
 
   s.specification_version = 2 if s.respond_to? :specification_version=
 
@@ -11,7 +12,7 @@ Gem::Specification.new do |s|
   s.description = %q{A maneira mais simples para instalar aplicacoes Rails na hospedagem Linux da Locaweb.}
   s.email = %q{fabio.akita@locaweb.com.br}
   s.executables = ["locarails"]
-  s.files = ["bin/locarails", "bin/locarails.cmd", "LICENSE", "Manifest", "README", "lib/locarails.rb", "lib/locarails/version.rb", "templates/database.locaweb.yml", "templates/deploy.rb", "templates/locaweb_backup.rb", "templates/ssh_helper.rb", "templates/.gitignore", "locarails.gemspec"]
+  s.files = File.read("Manifest").split("\n")
   s.has_rdoc = true
   s.homepage = %q{http://www.locaweb.com.br/rails}
   s.require_paths = ["lib"]

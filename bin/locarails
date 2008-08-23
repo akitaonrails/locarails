@@ -117,14 +117,14 @@ FileUtils.copy_file("#{config.bin_path}/../templates/locaweb_backup.rb",
 
 File.open("#{config.local_path}/config/deploy.rb", 'w+') do |out| 
   erb = ERB.new(File.read("#{config.bin_path}/../templates/deploy.rb.erb"))
-  buffer = erb.run
-  buffer += File.read("#{config.bin_path}/../templates/deploy.common.rb")
+  buffer = erb.result(config.send(:binding))
+  buffer << File.read("#{config.bin_path}/../templates/deploy.common.rb")
   out.puts buffer
 end
 
 File.open("#{config.local_path}/config/database.locaweb.yml", 'w+') do |out| 
   erb = ERB.new(File.read("#{config.bin_path}/../templates/database.locaweb.yml.erb"))
-  out.puts erb.run
+  out.puts erb.result(mysqlcfg.send(:binding))
 end
 
 puts <<-STR

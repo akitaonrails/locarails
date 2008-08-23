@@ -61,9 +61,9 @@ set :user, "<%= config.usuario %>"
 set :domain, "<%= config.dominio %>"
 set :application, "<%= config.app_name %>"
 set :repository, "<%= config.local_path %>"
-<% if config.ssh_key_path -%>
+<% if config.ssh_key_path %>
 ssh_options[:keys] = File.expand_path("<%= config.ssh_key_path %>") # apenas descomente se tiver chave
-<% end -%>
+<% end %>
 
 # =============================================================================
 # NAO MEXER DAQUI PARA BAIXO
@@ -79,7 +79,7 @@ set :runner, nil
 set :use_sudo, false
 set :no_release, true
 
-<% if config.mode == 'git' -%>
+<% if config.mode == 'git' %>
 set :git_repo, "/home/#{user}/repo/#{application}.git"
   
 set :scm, :git
@@ -90,12 +90,12 @@ set :copy_exclude, %w(.git/* .svn/* log/* tmp/* .gitignore)
 set :remote, "akitaonrails1"
 set :scm_verbose, true
 set :keep_releases, 5
-<% else -%>
+<% else %>
 set :scm, :none # nenhum repositorio
 set :deploy_via, :copy 
 set :copy_exclude, %w(.git/* .svn/* log/* tmp/*)
 set :keep_releases, 5
-<% end -%>
+<% end %>
 
 ssh_options[:username] = user
 ssh_options[:paranoid] = false 
