@@ -9,3 +9,5 @@ lib/locarails/version.rb
 templates/database.locaweb.yml
 templates/deploy.rb
 templates/locaweb_backup.rb
+templates/ssh_helper.rb
+templates/.gitignore

@@ -2,6 +2,7 @@
 #
 #  Created on 2008-8-19.
 #  Copyright (c) 2008. All rights reserved.
+#  Fabio Akita - akitaonrails.com
 
 begin
   require 'rubygems'
@@ -11,15 +12,41 @@ end
 
 require 'ostruct'
 require 'optparse'
+require 'erb'
+
+# configuracoes da sua hospedagem
+config   = OpenStruct.new
+mysqlcfg = OpenStruct.new
 
 OptionParser.new do |opts|
-  opts.banner = "Uso: #{File.basename($0)} [caminho]"
+  opts.banner = <<-STR
+LocaRails - configurador de Capistrano para projetos Rails
+especifico para hospedagens Linux da Locaweb
+
+Uso: #{File.basename($0)} [caminho] [opcoes]
+STR
 
   opts.on("-h", "--help", "Mostra esta tela de ajuda") do
     puts opts
     exit 0
   end
-
+  
+  opts.on("-m", "--mode=tipo", "modo de deployment (copy/git)", "Padrao: copy") do |mode|
+    config.mode = mode
+    unless "copy|git".include?(mode)
+      puts "#{mode} nao existe. Escolha copy ou git como --mode."
+      exit 0
+    end
+  end
+  
+  opts.on("-s", "--sshkey=caminho", "local da sua chave privada SSH", "Padrao: ~/.ssh/id_rsa") do |path|
+    config.ssh_key_path = path
+    unless File.exists?(path)
+      puts "Chave inexistente no caminho #{path}."
+      exit 0
+    end
+  end
+  
   begin
     opts.parse!(ARGV)
   rescue OptionParser::ParseError => e
@@ -44,10 +71,6 @@ def get_input(message)
   gets.strip
 end
 
-# configuracoes da sua hospedagem
-config   = OpenStruct.new
-mysqlcfg = OpenStruct.new
-
 # configuracoes locais da sua maquina
 config.bin_path   = File.dirname(File.expand_path(__FILE__))
 config.local_path = File.expand_path(ARGV.shift)
@@ -62,6 +85,10 @@ puts <<-STR
 Bem Vindos ao configurador de projetos da Locaweb
 Vamos configurar seu projeto Rails para melhor se
 Adequar nas nossas hospedagens Linux compartilhada
+
+O comando locarails deve ser executado *dentro* do
+diretorio do seu projeto, na sua maquina local.
+
 Para tanto precisaremos de algumas informacoes:
 ==================================================
 
@@ -71,10 +98,10 @@ Rails: #{config.local_path}
 STR
 
 # configuracoes inseridas manualmente pelo usuario
-config.app_name = get_input( "O nome da sua aplicacao" ) if config.app_name.nil? || config.app_name.empty?
-config.dominio  = get_input "O dominio do seu site (ex. teste.tempsite.ws)"
+config.app_name = get_input( "Nome da sua aplicacao" ) if config.app_name.nil? || config.app_name.empty?
+config.dominio  = get_input "Dominio do seu site (ex. teste.tempsite.ws)"
 config.usuario  = get_input "Seu usuario de hospedagem"
-mysqlcfg.db     = get_input "O nome do seu banco mysql"
+mysqlcfg.db     = get_input "Nome do seu banco mysql"
 mysqlcfg.user   = get_input "Seu usuario de mysql"
 mysqlcfg.pass   = get_input "Sua senha de mysql"
 mysqlcfg.host   = get_input "Seu servidor mysql (ex. mysqlxxx.locaweb.com.br)"
@@ -87,30 +114,22 @@ end
 
 FileUtils.copy_file("#{config.bin_path}/../templates/locaweb_backup.rb", 
   "#{config.local_path}/config/locaweb_backup.rb")
-  
+
 File.open("#{config.local_path}/config/deploy.rb", 'w+') do |out| 
-  buffer = File.open("#{config.bin_path}/../templates/deploy.rb", 'r') do | f | 
-    f.read.gsub('seu.usuario', config.usuario).
-      gsub('seu.dominio',      config.dominio).
-      gsub('sua.aplicacao',    config.app_name).
-      gsub('seu.projeto',      config.local_path)
-  end
+  erb = ERB.new(File.read("#{config.bin_path}/../templates/deploy.rb.erb"))
+  buffer = erb.run
+  buffer += File.read("#{config.bin_path}/../templates/deploy.common.rb")
   out.puts buffer
 end
 
 File.open("#{config.local_path}/config/database.locaweb.yml", 'w+') do |out| 
-  buffer = File.open("#{config.bin_path}/../templates/database.locaweb.yml", 'r') do | f | 
-    f.read.gsub('mysql.database', mysqlcfg.db).
-      gsub('mysql.username', mysqlcfg.user).
-      gsub('mysql.password', mysqlcfg.pass).
-      gsub('mysql.hostname', mysqlcfg.host)
-  end
-  out.puts buffer
+  erb = ERB.new(File.read("#{config.bin_path}/../templates/database.locaweb.yml.erb"))
+  out.puts erb.run
 end
 
 puts <<-STR
 
-# Parabéns, voce terminou de configurar sua aplicacao Rails!
+# Parabens, voce terminou de configurar sua aplicacao Rails!
 # Para configurar sua hospedagem execute 'cap deploy:setup'.
 # Para subir seu projeto execute 'cap deploy'
 [finalizado!]

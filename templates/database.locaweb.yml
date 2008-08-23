@@ -1,7 +1,0 @@
-production:
-  adapter: mysql
-  encoding: utf8
-  database: mysql.database
-  username: mysql.username
-  password: mysql.password
-  host: mysql.hostname
