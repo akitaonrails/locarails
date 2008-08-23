@@ -18,6 +18,10 @@ require 'erb'
 config   = OpenStruct.new
 mysqlcfg = OpenStruct.new
 
+# defaults
+config.force = false
+config.mode = 'copy'
+
 OptionParser.new do |opts|
   opts.banner = <<-STR
 LocaRails - configurador de Capistrano para projetos Rails
@@ -45,6 +49,10 @@ STR
       puts "Chave inexistente no caminho #{path}."
       exit 0
     end
+  end
+  
+  opts.on("-f", "--force", "Sobrescreve seu config/deploy.rb, caso exista.", "Cuidado: voce ira perder sua configuracao anterior") do
+    config.force = true
   end
   
   begin
@@ -76,24 +84,27 @@ config.bin_path   = File.dirname(File.expand_path(__FILE__))
 config.local_path = File.expand_path(ARGV.shift)
 config.app_name   = config.local_path.split('/').last
 
-if File.exists?(File.join(config.local_path, 'config/deploy.rb'))
+if !config.force && File.exists?(File.join(config.local_path, 'config/deploy.rb'))
   abort "Voce ja tem capistrano configurado em config/deploy.rb. Configuracao abortada."
 end
 
 puts <<-STR
-==================================================
-Bem Vindos ao configurador de projetos da Locaweb
+========================================================
+Bem Vindos ao configurador de projetos da Locaweb.
+
 Vamos configurar seu projeto Rails para melhor se
-Adequar nas nossas hospedagens Linux compartilhada
+Adequar nas nossas hospedagens Linux compartilhada.
 
 O comando locarails deve ser executado *dentro* do
 diretorio do seu projeto, na sua maquina local.
 
 Para tanto precisaremos de algumas informacoes:
-==================================================
+========================================================
 
-Garanta que a seguinte pasta contem sua aplicacao
-Rails: #{config.local_path}
+Estrategia de instalacao via: #{config.mode}
+
+Garanta que a seguinte pasta contem sua aplicacao Rails:
+  #{config.local_path}
 
 STR
 
@@ -109,7 +120,15 @@ mysqlcfg.host   = get_input "Seu servidor mysql (ex. mysqlxxx.locaweb.com.br)"
 # forca rodar capistrano
 unless File.exists?("#{config.local_path}/Capfile")
   puts "- Executando Capistrano no seu projeto ..."
-  `capify .`
+  begin
+    `capify .`  
+  rescue Exception => e
+    puts <<-STR
+ERRO: Voce provavelmente nao tem Capistrano instalado
+Rode: sudo gem install capistrano
+
+STR
+  end
 end
 
 FileUtils.copy_file("#{config.bin_path}/../templates/locaweb_backup.rb", 
@@ -130,7 +149,11 @@ end
 puts <<-STR
 
 # Parabens, voce terminou de configurar sua aplicacao Rails!
-# Para configurar sua hospedagem execute 'cap deploy:setup'.
-# Para subir seu projeto execute 'cap deploy'
+# Execute apenas uma vez 'cap deploy:setup' para configurar os
+  diretorios remotamente na sua hospedagem.
+# Em seguida execute 'cap deploy' para transportar sua aplicacao
+  para a hospedagem. Sempre que quiser atualizar sua aplicacao
+  no servidor apenas execute novamente 'cap deploy'
+  
 [finalizado!]
 STR
