@@ -137,7 +137,8 @@ FileUtils.copy_file("#{config.bin_path}/../templates/locaweb_backup.rb",
 File.open("#{config.local_path}/config/deploy.rb", 'w+') do |out| 
   erb = ERB.new(File.read("#{config.bin_path}/../templates/deploy.rb.erb"))
   buffer = erb.result(config.send(:binding))
-  buffer << File.read("#{config.bin_path}/../templates/deploy.common.rb")
+  erb = ERB.new(File.read("#{config.bin_path}/../templates/deploy.common.rb.erb"))
+  buffer << erb.result(config.send(:binding)) 
   out.puts buffer
 end
 

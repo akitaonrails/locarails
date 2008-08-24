@@ -8,7 +8,7 @@ lib/locarails.rb
 lib/locarails/version.rb
 templates/database.locaweb.yml.erb
 templates/deploy.rb.erb
-templates/deploy.common.rb
+templates/deploy.common.rb.erb
 templates/locaweb_backup.rb
 templates/ssh_helper.rb
 templates/.gitignore

@@ -13,18 +13,18 @@ end
 desc "Garante que as configuracoes estao adequadas"
 task :before_setup do
   ts = Time.now.strftime("%y%m%d%H%M%S")
+  <% if config.mode == 'git' %>
   # git folder
   has_git = false
-  if git_repo
-    run "test -d #{git_repo} || mkdir -p -m 755 #{git_repo}"
-    run "test -d #{git_repo}/.git || cd #{git_repo} && git init"
-    git_config = File.join(File.dirname(__FILE__), "../.git/config")
-    if File.exists?(git_config) && File.read(git_config) !~ /locaweb/
-      `git remote add locaweb #{repository}`
-      `git push locaweb #{branch}`
-      has_git = true
-    end
+  run "test -d #{git_repo} || mkdir -p -m 755 #{git_repo}"
+  run "test -d #{git_repo}/.git || cd #{git_repo} && git init"
+  git_config = File.join(File.dirname(__FILE__), "../.git/config")
+  if File.exists?(git_config) && File.read(git_config) !~ /locaweb/
+    `git remote add locaweb #{repository}`
+    `git push locaweb #{branch}`
+    has_git = true
   end
+  <% end %>
   
   run "if [ -d #{deploy_to} ]; then mv #{deploy_to} #{deploy_to}-#{ts}.old ; fi"
   run "test -d #{deploy_to} || mkdir -m 755 #{deploy_to}"
@@ -34,6 +34,7 @@ task :before_setup do
   run "ln -s #{deploy_to}/current/public #{public_html}/#{application}"
   put File.read(File.dirname(__FILE__) + "/database.locaweb.yml"), "#{deploy_to}/etc/database.yml"
   
+  <% if config.mode == 'git' %>
   if has_git
     # ssh keygen
     put File.read(File.dirname(__FILE__) + "/ssh_helper.rb"), "#{deploy_to}/etc/ssh_helper.rb"
@@ -48,6 +49,7 @@ task :before_setup do
     puts "==============================================================="
     3.times { puts "" }
   end
+  <% end %>
 end
 
 desc "Prepare the production database before migration"
