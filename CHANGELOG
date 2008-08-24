@@ -1,0 +1,11 @@
+== 1.1.0
+
+- basic support to create a remote Git ssh based git repo
+- basic support to deploy from the remote Git repo
+- support to upload the local ssh public key
+
+== 1.0.0
+
+- basic support for Capistrano's copy strategy
+- support for db backup recipe task
+- support for tail -f recipe task
