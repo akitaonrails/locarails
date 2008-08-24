@@ -3,6 +3,7 @@
 - basic support to create a remote Git ssh based git repo
 - basic support to deploy from the remote Git repo
 - support to upload the local ssh public key
+- templates now using ERB
 
 == 1.0.0
 

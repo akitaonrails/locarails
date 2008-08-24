@@ -14,14 +14,16 @@ desc "Garante que as configuracoes estao adequadas"
 task :before_setup do
   ts = Time.now.strftime("%y%m%d%H%M%S")
   # git folder
-  run "test -d #{git_repo} || mkdir -p -m 755 #{git_repo}"
-  run "test -d #{git_repo}/.git || cd #{git_repo} && git init"
-  git_config = File.join(File.dirname(__FILE__), "../.git/config")
   has_git = false
-  if File.exists?(git_config) && File.read(git_config) !~ /locaweb/
-    `git remote add locaweb #{repository}`
-    `git push locaweb #{branch}`
-    has_git = true
+  if git_repo
+    run "test -d #{git_repo} || mkdir -p -m 755 #{git_repo}"
+    run "test -d #{git_repo}/.git || cd #{git_repo} && git init"
+    git_config = File.join(File.dirname(__FILE__), "../.git/config")
+    if File.exists?(git_config) && File.read(git_config) !~ /locaweb/
+      `git remote add locaweb #{repository}`
+      `git push locaweb #{branch}`
+      has_git = true
+    end
   end
   
   run "if [ -d #{deploy_to} ]; then mv #{deploy_to} #{deploy_to}-#{ts}.old ; fi"
@@ -31,12 +33,12 @@ task :before_setup do
   run "if [ -h #{site_path} ]; then mv #{site_path} #{site_path}-#{ts}.old ; fi"
   run "ln -s #{deploy_to}/current/public #{public_html}/#{application}"
   put File.read(File.dirname(__FILE__) + "/database.locaweb.yml"), "#{deploy_to}/etc/database.yml"
-
-  # ssh keygen
-  put File.read(File.dirname(__FILE__) + "/ssh_helper.rb"), "#{deploy_to}/etc/ssh_helper.rb"
-  run "test -f .ssh/id_rsa || ruby #{deploy_to}/etc/ssh_helper.rb /home/#{user}/.ssh/id_rsa #{domain} #{user}"
   
-  unless has_git
+  if has_git
+    # ssh keygen
+    put File.read(File.dirname(__FILE__) + "/ssh_helper.rb"), "#{deploy_to}/etc/ssh_helper.rb"
+    run "test -f .ssh/id_rsa || ruby #{deploy_to}/etc/ssh_helper.rb /home/#{user}/.ssh/id_rsa #{domain} #{user}"
+  else
     3.times { puts "" }
     puts "==============================================================="
     puts "Rode os seguintes comandos depois de criar seu repositorio Git:"
