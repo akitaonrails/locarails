@@ -1,7 +1,6 @@
-require 'lib/locarails/version.rb'
 Gem::Specification.new do |s|
   s.name = %q{locarails}
-  s.version = Locarails::VERSION::STRING
+  s.version = "1.1.0"
 
   s.specification_version = 2 if s.respond_to? :specification_version=
 
