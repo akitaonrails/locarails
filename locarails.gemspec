@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.description = %q{A maneira mais simples para instalar aplicacoes Rails na hospedagem Linux da Locaweb.}
   s.email = %q{fabio.akita@locaweb.com.br}
   s.executables = ["locarails"]
-  s.files = File.read("Manifest").split("\n")
+  s.files = ["bin/locarails", "bin/locarails.cmd", "LICENSE", "Manifest", "README", "locarails.gemspec", "lib/locarails.rb", "lib/locarails/version.rb", "templates/database.locaweb.yml.erb", "templates/deploy.rb.erb", "templates/deploy.common.rb", "templates/locaweb_backup.rb", "templates/ssh_helper.rb", "templates/.gitignore"]
   s.has_rdoc = true
   s.homepage = %q{http://www.locaweb.com.br/rails}
   s.require_paths = ["lib"]
