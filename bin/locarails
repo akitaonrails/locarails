@@ -134,6 +134,11 @@ end
 FileUtils.copy_file("#{config.bin_path}/../templates/locaweb_backup.rb", 
   "#{config.local_path}/config/locaweb_backup.rb")
 
+if config.mode == 'git'
+  FileUtils.copy_file("#{config.bin_path}/../templates/ssh_helper.rb", 
+    "#{config.local_path}/config/ssh_helper.rb")
+end
+
 File.open("#{config.local_path}/config/deploy.rb", 'w+') do |out| 
   erb = ERB.new(File.read("#{config.bin_path}/../templates/deploy.rb.erb"))
   buffer = erb.result(config.send(:binding))
