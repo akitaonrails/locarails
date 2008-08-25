@@ -124,10 +124,11 @@ namespace :ssh do
       }
       exit 0
     end
-    run "test -d ~/.ssh || mkdir -m 755 ~/.ssh"
-    upload public_key_path, "~/.ssh"
-    run "test -f ~/.ssh/authorized_keys || touch ~/.ssh/authorized_keys"
-    run "cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys"
-    run "chmod 755 ~/.ssh/authorized_keys"
+    ssh_path = "/home/#{user}/.ssh"
+    run "test -d ~/.ssh || mkdir -m 755 #{ssh_path}"
+    upload public_key_path, ssh_path
+    run "test -f #{ssh_path}/authorized_keys || touch #{ssh_path}/authorized_keys"
+    run "cat #{ssh_path}/id_rsa.pub >> #{ssh_path}/authorized_keys"
+    run "chmod 755 #{ssh_path}/authorized_keys"
   end
 end
