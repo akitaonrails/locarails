@@ -148,7 +148,7 @@ if config.mode == 'git'
     "#{config.local_path}/.gitignore") unless File.exists?("#{config.local_path}/.gitignore")
 end
 
-File.open("#{config.local_path}/config/deploy.rb", 'w+') do |out| 
+File.open("#{config.local_path}/config/deploy.rb", 'w') do |out| 
   erb = ERB.new(File.read("#{config.bin_path}/../templates/deploy.rb.erb"))
   buffer = erb.result(config.send(:binding))
   erb = ERB.new(File.read("#{config.bin_path}/../templates/deploy.common.rb.erb"))
@@ -156,7 +156,7 @@ File.open("#{config.local_path}/config/deploy.rb", 'w+') do |out|
   out.puts buffer
 end
 
-File.open("#{config.local_path}/config/database.locaweb.yml", 'w+') do |out| 
+File.open("#{config.local_path}/config/database.locaweb.yml", 'w') do |out| 
   erb = ERB.new(File.read("#{config.bin_path}/../templates/database.locaweb.yml.erb"))
   out.puts erb.result(mysqlcfg.send(:binding))
 end
