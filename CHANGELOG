@@ -1,3 +1,11 @@
+== 1.1.2
+
+- added full backup/restore operations for mysql database
+- fixing git support, now let's you choose the local branch do deploy
+- adding correct dependency to capistrano
+- adding password masking
+- added highline to properly deal with user inputs
+
 == 1.1.1
 
 - small git path related fix

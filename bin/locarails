@@ -13,6 +13,7 @@ end
 require 'ostruct'
 require 'optparse'
 require 'erb'
+require 'highline/import'
 
 # configuracoes da sua hospedagem
 config   = OpenStruct.new
@@ -74,9 +75,14 @@ elsif ARGV.length > 1
   abort "Argumentos demais; por favor especifique somente o diretorio da aplicacao Rails.."
 end
 
-def get_input(message)
-  print "* #{message} > "
-  gets.strip
+def get_input(message, default_value = nil)
+  result = if message =~ /senha/
+    ask("* #{message} > ") { |q| q.echo = "*" }  
+  else
+    ask("* #{message} > ")
+  end
+  result = default_value if default_value && result.empty?
+  result
 end
 
 # configuracoes locais da sua maquina
@@ -112,10 +118,16 @@ STR
 config.app_name = get_input( "Nome da sua aplicacao" ) if config.app_name.nil? || config.app_name.empty?
 config.dominio  = get_input "Dominio do seu site (ex. teste.tempsite.ws)"
 config.usuario  = get_input "Seu usuario de hospedagem"
-mysqlcfg.db     = get_input "Nome do seu banco mysql"
-mysqlcfg.user   = get_input "Seu usuario de mysql"
+mysqlcfg.db     = get_input "Nome do seu banco mysql (enter para '#{config.usuario}')", config.usuario
+mysqlcfg.user   = get_input "Seu usuario de mysql (enter para #{mysqlcfg.db})", mysqlcfg.db
 mysqlcfg.pass   = get_input "Sua senha de mysql"
-mysqlcfg.host   = get_input "Seu servidor mysql (ex. mysqlxxx.locaweb.com.br)"
+mysqlcfg.host   = get_input "Seu servidor mysql (ex. mysqlxxxx.locaweb.com.br)"
+mysqlcfg.host = "#{mysqlcfg.host}.locaweb.com.br" unless mysqlcfg.host =~ /locaweb\.com\.br/
+if config.mode == 'git'
+  config.branch = get_input "Git branch (enter para 'master')", 'master'
+  config.remote_repo = get_input "Nome do repositorio remoto (enter para 'locaweb')", 'locaweb'  
+  config.remote_git = "#{config.usuario}@#{config.dominio}:~/repo/#{config.app_name}.git"
+end
 
 # forca rodar capistrano
 unless File.exists?("#{config.local_path}/Capfile")
@@ -131,12 +143,9 @@ STR
   end
 end
 
-FileUtils.copy_file("#{config.bin_path}/../templates/locaweb_backup.rb", 
-  "#{config.local_path}/config/locaweb_backup.rb")
-
 if config.mode == 'git'
-  FileUtils.copy_file("#{config.bin_path}/../templates/ssh_helper.rb", 
-    "#{config.local_path}/config/ssh_helper.rb")
+  FileUtils.copy_file("#{config.bin_path}/../templates/.gitignore", 
+    "#{config.local_path}/.gitignore") unless File.exists?("#{config.local_path}/.gitignore")
 end
 
 File.open("#{config.local_path}/config/deploy.rb", 'w+') do |out| 

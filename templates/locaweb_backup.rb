@@ -1,19 +1,30 @@
 #!/usr/bin/env ruby -wKU
 require 'yaml'
+require 'erb'
 
-deploy_to    = ARGV[0]
-cfg = YAML::load(File.open("#{deploy_to}/etc/database.yml"))
-exit! unless cfg['production'] # sai se nao encontrar o arquivo de banco
+operation, deploy_to = ARGV
+cfg = YAML::load(ERB.new(IO.read("#{deploy_to}/etc/database.yml")).result)
+exit 0 unless cfg['production'] # sai se nao encontrar o arquivo de banco
+prd = cfg['production']
+mysql_opts = "-u #{prd['username']} -p#{prd['password']} -h #{prd['host']} #{prd['database']}"
+mysql_opts_no_data = "-u #{prd['username']} -p#{prd['password']} -h #{prd['host']} --add-drop-table --no-data #{prd['database']}"
 
-cfg = cfg['production']
-cmd_mysql    = "mysqldump -u #{cfg['username']} -p#{cfg['password']} -h #{cfg['host']} #{cfg['database']} > #{deploy_to}/etc/dump.sql"
-cmd_compress = "cd #{deploy_to}/etc && tar cvfz dump.tar.gz dump.sql"
-cmd_rm       = "rm #{deploy_to}/etc/dump.sql"
+commands = []
 
-puts "executing: #{cmd_mysql.gsub(cfg['password'], 'xxxxxxxx')}"
-`#{cmd_mysql}`
-puts "executing: #{cmd_compress}"
-`#{cmd_compress}`
-puts "executing: #{cmd_rm}"
-`#{cmd_rm}`
-puts "db backup finished."
+case operation
+when 'backup'
+  commands << "mysqldump #{mysql_opts} > #{deploy_to}/etc/dump.sql"
+  commands << "cd #{deploy_to}/etc && tar cvfz dump.tar.gz dump.sql"
+  commands << "rm #{deploy_to}/etc/dump.sql"
+when 'restore'
+  commands << "cd #{deploy_to}/etc && if [ -f dump.tar.gz ]; then tar xvfz dump.tar.gz dump.sql ; fi"
+  commands << "if [ -f #{deploy_to}/etc/dump.sql ]; then mysql -u #{mysql_opts} < #{deploy_to}/etc/dump.sql && rm #{deploy_to}/etc/dump.sql ; fi"
+when 'drop_all'
+  commands << "mysqldump #{mysql_opts_no_data} | grep ^DROP | mysql #{mysql_opts}"
+end
+
+commands.each do |cmd|
+  puts "executando: #{cmd.gsub(cfg['password'], 'xxxxxxxx')}"
+  `#{cmd}`
+end
+puts "operacao #{operation} finalizada."  

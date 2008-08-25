@@ -15,13 +15,18 @@ task :before_setup do
   ts = Time.now.strftime("%y%m%d%H%M%S")
   <% if config.mode == 'git' %>
   # git folder
-  has_git = false
   run "test -d #{git_repo} || mkdir -p -m 755 #{git_repo}"
   run "test -d #{git_repo}/.git || cd #{git_repo} && git init"
   git_config = File.join(File.dirname(__FILE__), "../.git/config")
-  if File.exists?(git_config) && File.read(git_config) !~ /locaweb/
-    `git remote add locaweb #{repository}`
-    `git push locaweb #{branch}`
+
+  has_git = false
+  if File.exists?(git_config) 
+    `git remote rm #{remote_repo}` if File.read(git_config) =~ /\[remote\s+\"#{remote_repo}\"\]/
+    `git remote add #{remote_repo} #{repository}`
+    output = `git branch`.strip
+    `git checkout master && git checkout -b #{branch}` if output !~ /#{branch}/
+    `git checkout #{branch}` if output !~ /^\*\s+#{branch}/
+    `git push #{remote_repo} #{branch}`
     has_git = true
   end
   <% end %>
@@ -32,22 +37,23 @@ task :before_setup do
   run "if [ -d #{site_path} ]; then mv #{site_path} #{site_path}-#{ts}.old ; fi"
   run "if [ -h #{site_path} ]; then mv #{site_path} #{site_path}-#{ts}.old ; fi"
   run "ln -s #{deploy_to}/current/public #{public_html}/#{application}"
-  put File.read(File.dirname(__FILE__) + "/database.locaweb.yml"), "#{deploy_to}/etc/database.yml"
+  upload File.join(File.dirname(__FILE__), "database.locaweb.yml"), "#{deploy_to}/etc/database.yml"
+  upload File.join(File.dirname(__FILE__), "locaweb_backup.rb"), "#{deploy_to}/etc/locaweb_backup.rb"
+  upload File.join(File.dirname(__FILE__), "ssh_helper.rb"), "#{deploy_to}/etc/ssh_helper.rb"
   
   <% if config.mode == 'git' %>
-  if has_git
-    # ssh keygen
-    put File.read(File.dirname(__FILE__) + "/ssh_helper.rb"), "#{deploy_to}/etc/ssh_helper.rb"
-    run "test -f .ssh/id_rsa || ruby #{deploy_to}/etc/ssh_helper.rb /home/#{user}/.ssh/id_rsa #{domain} #{user}"
-  else
-    3.times { puts "" }
+  # ssh keygen
+  run "test -f ~/.ssh/id_rsa || ruby #{deploy_to}/etc/ssh_helper.rb /home/#{user}/.ssh/id_rsa #{domain} #{user}"
+
+  unless has_git
+    2.times { puts "" }
     puts "==============================================================="
     puts "Rode os seguintes comandos depois de criar seu repositorio Git:"
     puts ""
-    puts "  git remote add locaweb #{repository}"
-    puts "  git push locaweb #{branch}"
+    puts "  git remote add #{remote_repo} #{repository}"
+    puts "  git push #{remote_repo} #{branch}"
     puts "==============================================================="
-    3.times { puts "" }
+    2.times { puts "" }
   end
   <% end %>
 end
@@ -80,11 +86,48 @@ namespace :log do
 end
 
 namespace :db do
-  desc "Faz o backup remoto do banco de dados MySQL e ja faz o download"
+  desc "Faz o backup remoto e download do banco de dados MySQL"
   task :backup, :roles => :db do
-    backup_rb ||= "#{deploy_to}/current/config/locaweb_backup.rb"
-    run "if [ -f #{backup_rb} ]; then ruby #{backup_rb} #{deploy_to} ; fi"
+    backup_rb ||= "#{deploy_to}/etc/locaweb_backup.rb"
+    run "if [ -f #{backup_rb} ]; then ruby #{backup_rb} backup #{deploy_to} ; fi"
     get "#{deploy_to}/etc/dump.tar.gz", "dump.tar.gz"
     run "rm #{deploy_to}/etc/dump.tar.gz"
+  end
+  
+  desc "Faz o upload e o restore remoto do banco de dados MySQL"
+  task :restore, :roles => :db do
+    unless File.exists?("dump.tar.gz")
+      puts "Backup dump.tar.gz nao encontrado"
+      exit 0
+    end
+    backup_rb ||= "#{deploy_to}/etc/locaweb_backup.rb"
+    upload "dump.tar.gz", "#{deploy_to}/etc/dump.tar.gz"
+    run "if [ -f #{backup_rb} ]; then ruby #{backup_rb} restore #{deploy_to} ; fi"
+  end
+  
+  desc "Apaga todas as tabelas do banco de dados [CUIDADO! OPERACAO SEM VOLTA!]"
+  task :drop_all, :roles => :db do
+    backup_rb ||= "#{deploy_to}/etc/locaweb_backup.rb"
+    run "if [ -f #{backup_rb} ]; then ruby #{backup_rb} drop_all #{deploy_to} ; fi"
+  end
+end
+
+namespace :ssh do
+  desc "Faz upload da sua chave publica"
+  task :upload_key, :roles => :app do
+    public_key_path = File.expand_path("~/.ssh/id_rsa.pub")
+    unless File.exists?(public_key_path)
+      puts %{
+        Chave publica nao encontrada em #{public_key_path}
+        Crie sua chave - sem passphrase - com o comando:
+          ssh_keygen -t rsa
+      }
+      exit 0
+    end
+    run "test -d ~/.ssh || mkdir -m 755 ~/.ssh"
+    upload public_key_path, "~/.ssh"
+    run "test -f ~/.ssh/authorized_keys || touch ~/.ssh/authorized_keys"
+    run "cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys"
+    run "chmod 755 ~/.ssh/authorized_keys"
   end
 end
