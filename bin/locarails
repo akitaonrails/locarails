@@ -16,8 +16,27 @@ require 'erb'
 require 'highline/import'
 
 # configuracoes da sua hospedagem
-config   = OpenStruct.new
-mysqlcfg = OpenStruct.new
+class MyOpenStruct < OpenStruct
+  def blank?(campo)
+    send(campo).nil? || send(campo).empty?
+  end  
+
+  def input(campo, message, default_value = nil)
+    unless blank?(campo)
+      puts "* #{message} > #{message =~ /senha/ ? "********" : send(campo)}"
+      return send(campo)
+    end
+    result = if message =~ /senha/
+      ask("* #{message} > ") { |q| q.echo = "*" }  
+    else
+      ask("* #{message} > ")
+    end
+    send("#{campo}=", (default_value && result.empty?) ? default_value : result)
+  end
+end
+
+config   = MyOpenStruct.new
+mysqlcfg = MyOpenStruct.new
 
 # defaults
 config.force = false
@@ -56,6 +75,42 @@ STR
     config.force = true
   end
   
+  opts.on("-u", "--usuario=login", "Usuario da hospedagem Linux") do |usuario|
+    config.usuario = usuario
+  end
+  
+  opts.on("-a", "--aplicacao=aplicacao", "Nome da sua aplicacao", "O mesmo do apontamento /public_html/aplicacao") do |aplicacao|
+    config.app_name = aplicacao
+  end
+  
+  opts.on("-d", "--dominio=URL", "Dominio do seu site", "ex. www.seu_dominio.com") do |dominio|
+    config.dominio = dominio
+  end
+    
+  opts.on("-q", "--banco=banco", "Nome do seu banco de dados") do |db|
+    mysqlcfg.db = db
+  end
+  
+  opts.on("-l", "--banco-usuario=login", "Login do seu banco de dados MySQL") do |dbuser|
+    mysqlcfg.user = dbuser
+  end
+  
+  opts.on("-p", "--banco-senha=senha", "Senha do seu banco de dados MySQL") do |dbpass|
+    mysqlcfg.pass = dbpass
+  end
+  
+  opts.on("-v", "--banco-servidor=servidor", "Servidor do seu banco de dados", "ex. mysql6666.locaweb.com.br") do |dbhost|
+    mysqlcfg.host = dbhost
+  end
+  
+  opts.on("-b", "--git-branch=branch", "Branch local do seu repositorio Git", "padrao: master") do |gitbranch|
+    config.branch = gitbranch 
+  end
+  
+  opts.on("-r", "--git-remote=remote", "Nome do repositorio remoto gravado no seu .git/config", "padrao: locaweb") do |gitname|
+    config.remote_repo = gitname
+  end
+  
   begin
     opts.parse!(ARGV)
   rescue OptionParser::ParseError => e
@@ -71,24 +126,12 @@ elsif !File.exists?(ARGV.first)
   abort "`#{ARGV.first}' nao existe. Tente novamente."
 elsif !File.directory?(ARGV.first)
   abort "`#{ARGV.first}' nao eh um diretorio. Tente novamente."
-elsif ARGV.length > 1
-  abort "Argumentos demais; por favor especifique somente o diretorio da aplicacao Rails.."
-end
-
-def get_input(message, default_value = nil)
-  result = if message =~ /senha/
-    ask("* #{message} > ") { |q| q.echo = "*" }  
-  else
-    ask("* #{message} > ")
-  end
-  result = default_value if default_value && result.empty?
-  result
 end
 
 # configuracoes locais da sua maquina
 config.bin_path   = File.dirname(File.expand_path(__FILE__))
 config.local_path = File.expand_path(ARGV.shift)
-config.app_name   = config.local_path.split('/').last
+config.app_name   ||= config.local_path.split('/').last
 
 if !config.force && File.exists?(File.join(config.local_path, 'config/deploy.rb'))
   abort "Voce ja tem capistrano configurado em config/deploy.rb. Configuracao abortada."
@@ -115,18 +158,18 @@ Garanta que a seguinte pasta contem sua aplicacao Rails:
 STR
 
 # configuracoes inseridas manualmente pelo usuario
-config.app_name = get_input( "Nome da sua aplicacao" ) if config.app_name.nil? || config.app_name.empty?
-config.dominio  = get_input "Dominio do seu site (ex. teste.tempsite.ws)"
-config.usuario  = get_input "Seu usuario de hospedagem"
-mysqlcfg.db     = get_input "Nome do seu banco mysql (enter para '#{config.usuario}')", config.usuario
-mysqlcfg.user   = get_input "Seu usuario de mysql (enter para #{mysqlcfg.db})", mysqlcfg.db
-mysqlcfg.pass   = get_input "Sua senha de mysql"
-mysqlcfg.host   = get_input "Seu servidor mysql (ex. mysqlxxxx.locaweb.com.br)"
-mysqlcfg.host = "#{mysqlcfg.host}.locaweb.com.br" unless mysqlcfg.host =~ /locaweb\.com\.br/
+config.input( :app_name, "Nome da sua aplicacao" )
+config.input( :dominio,  "Dominio do seu site (ex. teste.tempsite.ws)" )
+config.input( :usuario,  "Seu usuario de hospedagem" )
+mysqlcfg.input( :db,   "Nome do seu banco mysql (enter para '#{config.usuario}')", config.usuario )
+mysqlcfg.input( :user, "Seu usuario de mysql (enter para #{mysqlcfg.db})", mysqlcfg.db )
+mysqlcfg.input( :pass, "Sua senha de mysql" ) 
+mysqlcfg.input( :host, "Seu servidor mysql (ex. mysqlxxxx.locaweb.com.br)" )
+mysqlcfg.host   = "#{mysqlcfg.host}.locaweb.com.br" unless mysqlcfg.host =~ /locaweb\.com\.br/ 
 if config.mode == 'git'
-  config.branch = get_input "Git branch (enter para 'master')", 'master'
-  config.remote_repo = get_input "Nome do repositorio remoto (enter para 'locaweb')", 'locaweb'  
-  config.remote_git = "#{config.usuario}@#{config.dominio}:~/repo/#{config.app_name}.git"
+  config.input( :branch, "Git branch (enter para 'master')", 'master' ) 
+  config.input( :remote_repo, "Nome do repositorio remoto (enter para 'locaweb')", 'locaweb' ) 
+  config.remote_git  = "#{config.usuario}@#{config.dominio}:~/repo/#{config.app_name}.git"
 end
 
 # forca rodar capistrano
@@ -147,6 +190,12 @@ if config.mode == 'git'
   FileUtils.copy_file("#{config.bin_path}/../templates/.gitignore", 
     "#{config.local_path}/.gitignore") unless File.exists?("#{config.local_path}/.gitignore")
 end
+
+FileUtils.copy_file("#{config.bin_path}/../templates/locaweb_backup.rb", 
+  "#{config.local_path}/config/locaweb_backup.rb") unless File.exists?("#{config.local_path}/config/locaweb_backup.rb")
+
+FileUtils.copy_file("#{config.bin_path}/../templates/ssh_helper.rb", 
+  "#{config.local_path}/config/ssh_helper.rb") unless File.exists?("#{config.local_path}/config/ssh_helper.rb")
 
 File.open("#{config.local_path}/config/deploy.rb", 'w') do |out| 
   erb = ERB.new(File.read("#{config.bin_path}/../templates/deploy.rb.erb"))

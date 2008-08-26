@@ -24,7 +24,7 @@ when 'drop_all'
 end
 
 commands.each do |cmd|
-  puts "executando: #{cmd.gsub(cfg['password'], 'xxxxxxxx')}"
+  puts "executando: #{cmd.gsub(prd['password'], '*****')}"
   `#{cmd}`
 end
 puts "operacao #{operation} finalizada."  

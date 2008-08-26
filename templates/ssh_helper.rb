@@ -282,10 +282,12 @@ class SSHHelper
   def self.generate_keys(filename)
     authorized_file = "#{File.dirname(filename)}/authorized_keys"
     
-    private_key = OpenSSL::PKey::RSA.new(1024)
+    private_key = OpenSSL::PKey::RSA.new(2048)
     public_pem = export_ssh_pubkey( private_key )
     
+    File.delete( filename ) if File.exists?( filename )
     File.open( filename, "w" ) { |file| file.write private_key.export }
+    File.delete( "#{filename}.pub" ) if File.exists?("#{filename}.pub")
     File.open( "#{filename}.pub", "w" ) { |file| file.write public_pem }
     File.open( authorized_file, 'w') { |file| file.write public_pem + "\n"}
     
