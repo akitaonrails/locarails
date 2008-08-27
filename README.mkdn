@@ -38,6 +38,15 @@ na maioria dos cenarios
 ## INSTALL:
 
     gem install akitaonrails-locarails --source=http://gems.github.com
+    
+    
+## COLABORADORES
+
+  * [Fábio Akita][a](autor)
+  * [Tapajós][t]
+
+[a]: http://www.akitaonrails.com
+[t]: http://www.improveit.com.br/empresa/tapajos
 
 ## LICENSE:
 
