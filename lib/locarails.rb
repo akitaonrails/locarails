@@ -3,4 +3,6 @@ $:.unshift(File.dirname(__FILE__)) unless
 
 module Locarails
   
+  VERSION = "1.1.4"
+  
 end

@@ -1,20 +1,20 @@
-Gem::Specification.new do |s|
+locarails_gemspec = Gem::Specification.new do |s|
   s.name = %q{locarails}
-  s.version = "1.1.4"
+  s.version = Locarails::VERSION
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Fabio Akita"]
-  s.date = %q{2008-08-27}
+  s.date = %q{Time.now.strftime("%Y/%d/%m")}
   s.default_executable = %q{locarails}
   s.description = %q{A maneira mais simples para instalar aplicacoes Rails na hospedagem Linux da Locaweb.}
   s.email = %q{fabio.akita@locaweb.com.br}
   s.executables = ["locarails"]
-  s.files = ["bin/locarails", "bin/locarails.cmd", "lib/locarails", "lib/locarails/version.rb", "lib/locarails.rb", "templates/database.locaweb.yml.erb", "templates/deploy.common.rb.erb", "templates/deploy.rb.erb", "templates/locaweb_backup.rb", "templates/ssh_helper.rb"]
+  s.files = Dir.glob("{bin,lib,templates, tasks}/**/*")
   s.has_rdoc = true
   s.homepage = %q{http://www.locaweb.com.br/rails}
   s.require_paths = ["lib"]
   s.rubyforge_project = %q{locarails}
-  s.rubygems_version = %q{1.2.0}
+  s.rubygems_version = [s.version]
   s.summary = %q{Configuracao de Capistrano automatica para hospedagens Linux Locaweb.}
 
   if s.respond_to? :specification_version then
@@ -32,4 +32,29 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<capistrano>, [">= 2.0.0"])
     s.add_dependency(%q<highline>, [">= 0"])
   end
+
 end
+
+
+Rake::GemPackageTask.new(locarails_gemspec) do |pkg|
+  pkg.gem_spec = locarails_gemspec
+end
+
+namespace :gem do
+  namespace :spec do
+    desc "Update locarails.gemspec"
+    task :generate do
+      File.open("locarails.gemspec", "w") do |f|
+        f.puts(locarails_gemspec.to_ruby)
+      end
+    end
+  end
+end
+
+desc "Generate package and install"
+task :install => :package do
+  sh %{sudo gem install --local pkg/locarails-#{Locarails::VERSION}}
+end
+
+desc "Remove all generated artifacts"
+task :clean => :clobber_package
