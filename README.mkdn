@@ -1,21 +1,21 @@
-= locarails
+# locarails
 
-* http://www.locaweb.com.br/rails
+    http://www.locaweb.com.br/rails
 
-== DESCRICAO:
+## DESCRICAO:
 
 Facilitar a instalacao de aplicacoes Rails na hospedagem Linux da
 Locaweb. Configura receita de Capistrano padrao que deve funcionar
 na maioria dos cenarios
 
-== SINOPSE:
+## SINOPSE:
 
-  cd seu_projeto_rails
-  locarails .
-  cap deploy:setup
-  cap deploy
+    cd seu_projeto_rails
+    locarails .
+    cap deploy:setup
+    cap deploy
 
-== AVISOS:
+## AVISOS:
 
 * Não use o locarails se voce ja tem Capistrano instalado no seu
   projeto. Este programa tem como objetivo ajudar quem nao conhece
@@ -28,18 +28,18 @@ na maioria dos cenarios
   painel.locaweb.com.br e aponte para o diretorio /public_html/app
   sendo 'app' o nome da sua aplicacao
 
-== REQUERIMENTOS:
+## REQUERIMENTOS:
 
 * Estar em Linux (Ubuntu ou outros) ou Mac OS X
 * Ter Ruby instalado (sudo apt-get install ruby1.8 ruby1.8-dev)
 * Ter Rails instalado (sudo gem install rails)
 * Ter Capistrano instalado (sudo gem install capistrano)
 
-== INSTALL:
+## INSTALL:
 
-* gem install akitaonrails-locarails --source=http://gems.github.com
+    gem install akitaonrails-locarails --source=http://gems.github.com
 
-== LICENSE:
+## LICENSE:
 
 (The MIT License)
 
