@@ -50,11 +50,17 @@ especifico para hospedagens Linux da Locaweb
 Uso: #{File.basename($0)} [caminho] [opcoes]
 STR
 
+  opts.on("--version", "Mostra versao atual do locarails") do
+    require 'locarails'
+    puts "Locarails v#{Locarails::VERSION::STRING}"
+    exit 0
+  end
+
   opts.on("-h", "--help", "Mostra esta tela de ajuda") do
     puts opts
     exit 0
   end
-  
+    
   opts.on("-m", "--mode=tipo", "modo de deployment (copy/git)", "Padrao: copy") do |mode|
     config.mode = mode
     unless "copy|git".include?(mode)

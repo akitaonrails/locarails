@@ -4,6 +4,9 @@ LICENSE
 Manifest
 README
 locarails.gemspec
+lib/fix.rb
+lib/copy.rb
+lib/none.rb
 lib/locarails.rb
 lib/locarails/version.rb
 templates/database.locaweb.yml.erb

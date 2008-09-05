@@ -3,56 +3,30 @@
 # utilizando estratégia de cópia sem servidor de versionamento
 # =============================================================================
 # 
-# Para que esta receita funcione realize os seguintes passos:
+# 1. Esta receita é executada na sua maquina local e nao na hospedagem remota
 # 
-# 1. copie o arquivo backup_locaweb.rb no diretorio 'config' de sua aplicacao
-# 2. crie um arquivo 'config/database.locaweb.yml' configurando de acordo com
-#    os dados de sua hospedagem (que você recebeu por e-mail com o título de
-#    "Instrucoes - MySQL - Incluso"). Um exemplo seria assim: 
-#    
-#    production:
-#      adapter: mysql
-#      encoding: utf8
-#      database: railsdemo
-#      username: railsdemo
-#      password: xxxxxxxxx
-#      host: mysql1179.locaweb.com.br
-#    
-# 3. se você estiver utilizando subversion, git ou outro versionador, garanta
-#    que os arquivos 'config/database.yml' e o 'config/database.locaweb.yml'
-#    estão na lista de arquivos ignorados. Eh boa pratica nao mante-los num
-#    repositorio
-# 4. garanta que voce tem capistrano instalado executando 'sudo gem install
-#    capistrano'
-# 5. garanta que, a partir do diretorio do seu projeto, voce executou o comando
-#    'capify .' para que o capistrano se configure corretamente no seu projeto
-# 6. substitua o arquivo 'config/deploy.rb' gerado, por este arquivo que voce
-#    baixou da Locaweb
-# 7. altere o arquivo 'config/deploy.rb' conforme o exemplo abaixo:
+# 2. O Locarails depende da gem Capistrano
 # 
-#    set :user, "railsdemo"                         
-#    set :domain, "railsdemo.tecnologia.ws"         
-#    set :application, "demo"                       
-#    set :repository, "~/Sites/rails/demo"  
+# 3. A estrategia de deployment padrao eh Copy, que comprime seu projeto e envia
+#    para o servidor via SCP, e la eh descomprimido. Esta opcao funciona em
+#    qualquer sistema operacional sem mais nenhuma dependencia, incluindo 
+#    Windows
 #    
-#    Note que 'application' eh o nome do diretorio que voce configurou no
-#    Painel de Controle da Locaweb, onde ele mostra /public_html/demo, por
-#    exemplo.
-# 
-# 8. Feito isso digite 'cap deploy:setup'. Isso deve ser executado apenas uma vez
-#    para que toda a configuracao necessaria seja feita na sua hospedagem
+# 4. A opcao -m git ativa a receita via Git que eh um repositorio descentralizado
+#    muito eficiente e que garante um deployment ainda mais rapido. Eh necessario
+#    que seu projeto local esteja em git e voce precisa do Git instalado na sua
+#    maquina
 #    
-# 9. Finalmente, para colocar sua aplicação em produção, apenas execute 
-#    'cap deploy'. Se nada der errado, já deve estar tudo no ar.
-#    
-# 10. Se em algum momento, voce notar que a instalacao atual subiu com problemas
-#    sempre podera voltar atras usando o comando 'cap deploy:rollback', garantindo
-#    que problemas inesperados nao o deixem fora do ar.
+# 5. Ainda nao existe suporte a Subversion
+#
 #
 # Autor: Fabio Akita
 # E-mail: fabio.akita@locaweb.com.br
 # Locaweb Serviços de Internet S/A 
 # Todos os direitos reservados
+
+# correcao temporaria para capistrano 2.5.0
+require 'locarails/fix'
 
 # =============================================================================
 # CONFIGURE OS VALORES DE ACORDO COM SUA HOSPEDAGEM
