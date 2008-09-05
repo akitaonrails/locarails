@@ -1,3 +1,12 @@
+== 1.1.5
+
+- monkey patching Capistrano 2.5.0 with the following fixes:
+  http://github.com/akitaonrails/capistrano/commit/2b52cad3d17ca6f1ec9bfb9c46ef3358ce608b53
+  http://github.com/akitaonrails/capistrano/commit/4d9f4382ccd13ae4c9a7f4fe88ad18fd84b77be6
+  http://github.com/akitaonrails/capistrano/commit/e9c9e6842cf2b96e1269a860a26a54b0eaa51f4c
+  http://github.com/akitaonrails/capistrano/commit/f9a115a75112d3d4966138a9e4bd0a1adc5f467a
+  http://github.com/akitaonrails/capistrano/commit/60a98a7b7555e2c3a146daaa79ea8b400778cbe8
+  
 == 1.1.3
 
 - added command line options to avoid interactive inputs
