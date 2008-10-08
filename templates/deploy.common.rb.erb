@@ -31,6 +31,7 @@ task :before_setup do
   end
   <% end %>
   
+  run "test -d /home/#{user}/rails_app || mkdir -m 755 /home/#{user}/rails_app"
   run "if [ -d #{deploy_to} ]; then mv #{deploy_to} #{deploy_to}-#{ts}.old ; fi"
   run "test -d #{deploy_to} || mkdir -m 755 #{deploy_to}"
   run "test -d #{deploy_to}/etc || mkdir -m 755 #{deploy_to}/etc"

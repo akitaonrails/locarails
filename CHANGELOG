@@ -1,3 +1,7 @@
+== 1.1.6
+
+- missing /home/#user/rails_app will now be properly created
+
 == 1.1.5
 
 - monkey patching Capistrano 2.5.0 with the following fixes:
