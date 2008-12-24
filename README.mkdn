@@ -48,8 +48,8 @@ na maioria dos cenarios
 
 ## COLABORADORES
 
-  * [Fabio Akita][a](autor)
-  * [Tapajós][t]
+* [Fabio Akita][a](autor)
+* [Tapajós][t]
 
 ## LICENSE:
 
