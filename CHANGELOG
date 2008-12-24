@@ -1,3 +1,9 @@
+== 1.1.7
+
+- fixing mysql host name appending wrong string
+- rescuying when some template file is not present in the gem
+- adding missing templates/.gitignore to the gemspec
+
 == 1.1.6
 
 - missing /home/#user/rails_app will now be properly created

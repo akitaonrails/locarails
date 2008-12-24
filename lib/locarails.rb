@@ -1,3 +1,4 @@
-require 'locarails/version'
 module Locarails
 end
+
+require 'locarails/version'

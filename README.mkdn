@@ -1,5 +1,8 @@
-# locarails
+== LOCARAILS ==
 
+	A melhor ferramenta para deployment de aplicações Rails na
+	  melhor hospedagem de Ruby on Rails do Brasil na Locaweb:
+	
     http://www.locaweb.com.br/rails
 
 ## DESCRICAO:
@@ -17,6 +20,9 @@ na maioria dos cenarios
 
 ## AVISOS:
 
+* O LOCARAILS DEVE SER EXECUTADO NA SUA MAQUINA LOCAL E NAO NO
+  SERVIDOR REMOTO DA HOSPEDAGEM - muitos estão cometendo esse erro.
+
 * Não use o locarails se voce ja tem Capistrano instalado no seu
   projeto. Este programa tem como objetivo ajudar quem nao conhece
   nada a respeito de Capistrano
@@ -31,6 +37,7 @@ na maioria dos cenarios
 ## REQUERIMENTOS:
 
 * Estar em Linux (Ubuntu ou outros) ou Mac OS X
+  obs: em Windows funciona apenas no mode padrão ("copy")
 * Ter Ruby instalado (sudo apt-get install ruby1.8 ruby1.8-dev)
 * Ter Rails instalado (sudo gem install rails)
 * Ter Capistrano instalado (sudo gem install capistrano)
@@ -38,11 +45,10 @@ na maioria dos cenarios
 ## INSTALL:
 
     gem install akitaonrails-locarails --source=http://gems.github.com
-    
-    
+
 ## COLABORADORES
 
-  * [Fábio Akita][a](autor)
+  * [Fabio Akita][a](autor)
   * [Tapajós][t]
 
 ## LICENSE:

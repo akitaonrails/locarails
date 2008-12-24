@@ -171,9 +171,8 @@ mysqlcfg.input( :db,   "Nome do seu banco mysql (enter para '#{config.usuario}')
 mysqlcfg.input( :user, "Seu usuario de mysql (enter para #{mysqlcfg.db})", mysqlcfg.db )
 mysqlcfg.input( :pass, "Sua senha de mysql" ) 
 mysqlcfg.input( :host, "Seu servidor mysql (ex. mysqlxxxx.locaweb.com.br)" )
-mysqlcfg.host   = "#{mysqlcfg.host}.locaweb.com.br" unless mysqlcfg.host =~ /locaweb\.com\.br/ 
 if config.mode == 'git'
-  config.input( :branch, "Git branch (enter para 'master')", 'master' ) 
+  config.input( :branch, "Git branch local (enter para 'master')", 'master' ) 
   config.input( :remote_repo, "Nome do repositorio remoto (enter para 'locaweb')", 'locaweb' ) 
   config.remote_git  = "#{config.usuario}@#{config.dominio}:~/repo/#{config.app_name}.git"
 end
@@ -193,15 +192,27 @@ STR
 end
 
 if config.mode == 'git'
-  FileUtils.copy_file("#{config.bin_path}/../templates/.gitignore", 
-    "#{config.local_path}/.gitignore") unless File.exists?("#{config.local_path}/.gitignore")
+  begin
+    FileUtils.copy_file("#{config.bin_path}/../templates/.gitignore", 
+      "#{config.local_path}/.gitignore") unless File.exists?("#{config.local_path}/.gitignore")
+  rescue
+    puts "Error copying file #{config.bin_path}/../templates/.gitignore"
+  end
 end
 
-FileUtils.copy_file("#{config.bin_path}/../templates/locaweb_backup.rb", 
-  "#{config.local_path}/config/locaweb_backup.rb") unless File.exists?("#{config.local_path}/config/locaweb_backup.rb")
+begin
+  FileUtils.copy_file("#{config.bin_path}/../templates/locaweb_backup.rb", 
+    "#{config.local_path}/config/locaweb_backup.rb") unless File.exists?("#{config.local_path}/config/locaweb_backup.rb")
+rescue
+  puts "Error copying file #{config.bin_path}/../templates/locaweb_backup.rb"
+end
 
-FileUtils.copy_file("#{config.bin_path}/../templates/ssh_helper.rb", 
-  "#{config.local_path}/config/ssh_helper.rb") unless File.exists?("#{config.local_path}/config/ssh_helper.rb")
+begin
+  FileUtils.copy_file("#{config.bin_path}/../templates/ssh_helper.rb", 
+    "#{config.local_path}/config/ssh_helper.rb") unless File.exists?("#{config.local_path}/config/ssh_helper.rb")
+rescue
+  puts "Error copying file #{config.bin_path}/../templates/ssh_helper.rb"
+end
 
 File.open("#{config.local_path}/config/deploy.rb", 'w') do |out| 
   erb = ERB.new(File.read("#{config.bin_path}/../templates/deploy.rb.erb"))
