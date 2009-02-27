@@ -1,3 +1,8 @@
+== 1.1.8
+
+- Capistrano 2.5.5 "almost" fixes the SCM/None xcopy strategy but gets wrong on replacing slashes 
+  for backslashes. Added fix for that
+
 == 1.1.7
 
 - fixing mysql host name appending wrong string
