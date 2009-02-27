@@ -9,5 +9,4 @@ unless Gem.source_index.search('capistrano').select { |g| g.version.to_s =~ /^2\
   require 'locarails/base'
   require 'locarails/copy'
   require 'locarails/none'
-  end
 end
