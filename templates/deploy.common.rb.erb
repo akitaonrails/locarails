@@ -66,6 +66,7 @@ end
 namespace :deploy do
   desc "Pede restart ao servidor Passenger"
   task :restart, :roles => :app do
+    run "chmod -R 655 #{release_path}"
     run "touch #{deploy_to}/current/tmp/restart.txt"
   end
 end

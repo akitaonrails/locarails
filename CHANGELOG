@@ -1,4 +1,9 @@
-== 1.1.8
+== 1.1.11
+
+- removing the Gem::SourceIndex#search deprecated call and replacing for 'find_name'
+- chmod 655 for release_path on each deploy
+
+== 1.1.10
 
 - Capistrano 2.5.5 "almost" fixes the SCM/None xcopy strategy but gets wrong on replacing slashes 
   for backslashes. Added fix for that
