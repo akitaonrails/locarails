@@ -1,3 +1,7 @@
+== 1.1.12
+
+- fixing chmod of the release folder from 655 to 755 
+
 == 1.1.11
 
 - removing the Gem::SourceIndex#search deprecated call and replacing for 'find_name'
