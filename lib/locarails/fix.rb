@@ -5,8 +5,10 @@ unless Gem.source_index.find_name('capistrano').select { |g| g.version.to_s =~ /
   require 'capistrano/recipes/deploy/dependencies'
   require 'capistrano/recipes/deploy/strategy/base'
   require 'capistrano/recipes/deploy/strategy/copy'
+  require 'capistrano/recipes/deploy/scm/git'
   require 'capistrano/recipes/deploy/scm/none'
   require 'locarails/base'
   require 'locarails/copy'
+  require 'locarails/git'
   require 'locarails/none'
 end

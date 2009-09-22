@@ -11,10 +11,17 @@ Facilitar a instalacao de aplicacoes Rails na hospedagem Linux da
 Locaweb. Configura receita de Capistrano padrao que deve funcionar
 na maioria dos cenarios
 
-## SINOPSE:
+## INSTRUCOES PARA ESTRATEGIA DE COPIA SIMPLES:
 
     cd seu_projeto_rails
     locarails .
+    cap deploy:setup
+    cap deploy
+
+## INSTRUCOES PARA ESTRATEGIA DE GIT:
+
+    cd seu_projeto_rails
+    locarails . --mode git
     cap deploy:setup
     cap deploy
 
@@ -30,9 +37,14 @@ na maioria dos cenarios
   - seu usuario de hospedagem (o usuario da conta linux, nao o 
     usuario de cliente)
   - seus dados de MySQL (usuario, senha, servidor, nome do banco)
+  - se for usar Git ja tenha seu projeto localmente commitado e pronto
 * Crie o apontamento do seu dominio via o Painel da Locaweb em
   painel.locaweb.com.br e aponte para o diretorio /public_html/app
   sendo 'app' o nome da sua aplicacao
+* Se quiser usar outro Banco que nao MySQL voce precisara editar 
+  manualmente o arquivo config/database.locaweb.yml logo depois do
+  primeiro cap deploy:setup e antes do cap deploy. Cheque se os dados
+  estao todos corretos e depois faca um deploy.
 
 ## REQUERIMENTOS:
 
@@ -41,6 +53,10 @@ na maioria dos cenarios
 * Ter Ruby instalado (sudo apt-get install ruby1.8 ruby1.8-dev)
 * Ter Rails instalado (sudo gem install rails)
 * Ter Capistrano instalado (sudo gem install capistrano)
+
+## SEGURANCA COM SSH:
+
+* Leia o CHANGELOG para a versao 1.2.0
 
 ## INSTALL:
 

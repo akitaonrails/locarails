@@ -1,3 +1,16 @@
+== 1.2.0
+
+- Security compliance fix for Git repository. 
+  In a shared-hosting environment it's a good thing to have SSH access from the
+  outside to your remote shared server. But's usually not a good idea for, once
+  inside the machine, to be able to ssh another neighbor server. So it's a good
+  practice to lock down ssh connections from within the same vicinity.
+  Problem is that git, by default, makes an ssh connection to itself when
+  deploying. We can avoid it by giving git a local URL in the format "file://"
+  that way it will use the filesystem only and will not try to open an ssh
+  connection to itself.
+  This version provides a monkey patch to filter capistrano's git library.
+
 == 1.1.12
 
 - fixing chmod of the release folder from 655 to 755 
