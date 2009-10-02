@@ -55,7 +55,7 @@ class Capistrano::Deploy::Strategy::Copy
 
     logger.trace "compressing #{destination} to #{filename}"
     # if it is Windows, force gzip using the pure Ruby minitar library
-    if Capistrano::Deploy::LocalDependency.on_windows?
+    unless RUBY_PLATFORM.include? "linux"
       require 'zlib'
       require 'archive/tar/minitar'
       Dir.chdir(tmpdir) { Archive::Tar::Minitar.pack(File.basename(destination), Zlib::GzipWriter.new(File.open(File.basename(filename), 'wb'))) }
