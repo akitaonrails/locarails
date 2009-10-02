@@ -2,11 +2,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{locarails}
-  s.version = "1.2.0"
+  s.version = "1.2.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Fabio Akita"]
-  s.date = %q{2009-09-22}
+  s.date = %q{2009-10-02}
   s.default_executable = %q{locarails}
   s.description = %q{A maneira mais simples para instalar aplicacoes Rails na hospedagem Linux da Locaweb.}
   s.email = %q{fabio.akita@locaweb.com.br}
